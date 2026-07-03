@@ -39,6 +39,15 @@ Then visit:
 pytest
 ```
 
+## Run with Docker
+
+```bash
+docker build -t backend-service .
+docker run --rm -p 8000:8000 backend-service
+```
+
+Then visit http://127.0.0.1:8000/docs as above.
+
 ## API
 
 | Method | Path          | Description        |
