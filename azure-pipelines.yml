@@ -1,39 +1,44 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
 pool:
   vmImage: ubuntu-latest
 
-jobs:
-- job: Build
-  displayName: 'Build and test'
-  steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.x'
-    displayName: 'Use Python 3.x'
+stages:
+- stage: BuildStage
+  jobs:
+  - job: Build
+    displayName: 'Build and test'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+      displayName: 'Use Python 3.x'
 
-  - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt -r requirements-dev.txt
-    displayName: 'Install dependencies'
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt -r requirements-dev.txt
+      displayName: 'Install dependencies'
 
-  - script: pytest
-    displayName: 'Run tests'
+    - script: pytest
+      displayName: 'Run tests'
 
-- job: DockerBuild
-  displayName: 'Build Docker image'
-  steps:
-  - task: Docker@2
+  - job: DockerBuild
     displayName: 'Build Docker image'
-    inputs:
-      command: build
-      Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-      repository: backend-service
-      tags: |
-        $(Build.BuildId)
+    steps:
+    - task: Docker@2
+      displayName: 'Build Docker image'
+      inputs:
+        command: build
+        Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        repository: backend-service
+        tags: |
+          $(Build.BuildId)
+
+- stage: PushStage
+  jobs:
+    - job: Push
+      displayName: 'Push to ECR'
+      steps:
+      - script: echo "This will push to ECR"        
+        displayName: 'Print Runtime Variable'
